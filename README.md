@@ -6,7 +6,7 @@ Botkit easily handles responding to messages from users. However, it sometimes f
 
 I could not find an easy way to handle this.
 * No easy way to send a "typing ..." notification
-* No easy way to send multiple messages with delay in between to a specific user.
+* No easy way to send multiple messages with delay in between, to a specific user.
 
 # Covered
 * Turn the bot on and off.
