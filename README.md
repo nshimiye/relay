@@ -12,7 +12,15 @@ I could not find an easy way to handle this.
 * Turn the bot on and off.
  * slack RTM api provides a way to do this by use of a channel-id
 ```javascript
-
+const RtmClient = require('@slack/client').RtmClient;
+const RTM_CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS.RTM;
+let _rtm = new RtmClient(token, {logLevel: 'none'});
+_rtm.on(RTM_CLIENT_EVENTS.RTM_CONNECTION_OPENED, () => {
+  // use web api to get IM's
+  let imId = '<IM-id>';
+  _rtm.sendTyping(imId);
+});
+_rtm.start();
 ```
  * relay provide a "notify" method that takes in the user-name or channel-name
 ```javascript
