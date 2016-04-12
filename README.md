@@ -2,7 +2,7 @@
 Bot user that can send messages to different users
 
 [![Build Status](https://travis-ci.org/nshimiye/relay.svg?branch=master)](https://travis-ci.org/nshimiye/relay)
-
+[![Code Climate](https://codeclimate.com/github/nshimiye/relay/badges/gpa.svg)](https://codeclimate.com/github/nshimiye/relay)
 # Installation
 ```bash
 npm install bot-relay
