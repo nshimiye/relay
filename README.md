@@ -11,6 +11,22 @@ I could not find an easy way to handle this.
 # Covered
 * Turn the bot on and off.
  * slack RTM api provides a way to do this
+```javascript
+
+```
+ 
 * Send message to slack user
- * given username or userid or IM(= slack's channel id for direct messages) id
+ * given user name or IM(= slack's channel id for direct messages) id
  * use your bot info (bot id, bot username) to send a message to the above user.
+```javascript
+
+```
+
+* Post in a slack channel
+ * given a channel name 
+ * use your bot info (bot id, bot username) to post a message to the above channel.
+```javascript
+
+```
+ 
+ 
