@@ -8,7 +8,8 @@
     "integration-test": "node `npm bin`/istanbul test `npm bin`/_mocha -- test/bootstrap.js test/integration/**/*.test.js",
     "functional-test": "node `npm bin`/istanbul test `npm bin`/_mocha -- test/bootstrap.js test/functional/**/*.test.js",
     "test": "npm run unit-test",
-    "jshint": "node `npm bin`/jshint src/"
+    "jshint": "node `npm bin`/jshint src/",
+    "coverage": "`npm bin`/istanbul cover `npm bin`/_mocha --report lcovonly -- test/bootstrap.js test/unit/**/*.test.js && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",

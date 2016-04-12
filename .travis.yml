@@ -5,4 +5,4 @@ node_js:
 
 script:
   - "node `npm bin`/jshint api/"
-  - "npm test --coverage"
+  - "npm run coverage"
