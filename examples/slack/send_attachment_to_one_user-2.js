@@ -1,7 +1,10 @@
 'use strict';
 const dateFormat = require('dateformat');
 const relay = require('../../index');
-const token = process.env.SLACK_API_TOKEN || 'xoxb-32586927523-5IBNrG1ZVBRLWj68RpAvM5c1'; // for @chatty bot
+
+const config = require('../../config').slack;
+const token = config.SLACK_API_TOKEN; // for @chatty bot
+
 let slackRelay, lastTime;
 
 // when instance is created, the connection is also made
