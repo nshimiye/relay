@@ -15,7 +15,7 @@ I could not find an easy way to handle this.
 
 ```
  * relay provide a "notify" method that takes in the user-name or channel-name
-```
+```javascript
 const relay = require('bot-relay');
 let token = '<slack bot token>'; //@TODO add url to get this token
 let slackRelay = relay.slackRelay(token);
