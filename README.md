@@ -15,11 +15,14 @@ I could not find an easy way to handle this.
 const RtmClient = require('@slack/client').RtmClient;
 const RTM_CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS.RTM;
 let _rtm = new RtmClient(token, {logLevel: 'none'});
+
 _rtm.on(RTM_CLIENT_EVENTS.RTM_CONNECTION_OPENED, () => {
+  // rtm connection started!
   // use web api to get IM's
-  let imId = '<IM-id>';
+  let imId = '<IM-id>'; // IM-id is the id of the user's direct channel
   _rtm.sendTyping(imId);
 });
+
 _rtm.start();
 ```
  * relay provide a "notify" method that takes in the user-name or channel-name
