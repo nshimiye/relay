@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+  - "4.4.2"
+  - "5"
+
+script:
+  - "node `npm bin`/jshint api/"
+  - "npm test --coverage"

@@ -2,5 +2,7 @@
  * store all variables required to initialize the connection to slack
  */
 module.exports.slackSample = {
-  'SLACK_API_TOKEN': '<xoxb>-<token-data>-<token-data>' // for @chatty bot
+  'SLACK_API_TOKEN': '<xoxb>-<token-data>-<token-data>', // for @chatty bot
+  'IM_ID': '<im id>' // for @mars user 
+
 };

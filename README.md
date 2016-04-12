@@ -35,15 +35,15 @@ relayInstance.notify('<user-1>', 'user_typing');
 ```
 
 * Send message to slack user
- * given user name or IM(= slack's channel id for direct messages) id
- * use your bot info (bot id, bot username) to send a message to the above user.
+ * given user name
+ * use your bot to send a message to the above user.
 ```javascript
 relayInstance.send('Hi there!', '<user-1>');
 ```
 
 * Post in a slack channel
  * given a channel name
- * use your bot info (bot id, bot username) to post a message to the above channel.
+ * use your bot to post a message to the above channel.
 ```javascript
 relayInstance.post('Hello! I am alive :)', '<channel-1>');
 ```
