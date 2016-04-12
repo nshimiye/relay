@@ -2,9 +2,12 @@
 Bot user that can send messages to different users
 
 # Installation
+```bash
+npm install bot-relay
+```
 
 # usage
-*
+* Instance initialization
 ```javascript
 const relay = require('bot-relay');
 let token = '<slack bot token>'; //@TODO add url to get this token
@@ -26,7 +29,7 @@ slackRelay.connect(); // return promise - resolve with relay instance
 slackRelay.disconnect(); // return promise - resolve with success message
 ```
 
-* relay provide a "notify" method that takes in the user-name or channel-name
+* Relay provide a "notify" method that takes in the user-name or channel-name
 ```javascript
 relayInstance.notify('<user-1>', 'user_typing');
 ```
