@@ -1,6 +1,8 @@
 # relay
 Bot user that can send messages to different users
 
+[![Build Status](https://travis-ci.org/nshimiye/relay.svg?branch=master)](https://travis-ci.org/nshimiye/relay)
+
 # Installation
 ```bash
 npm install bot-relay
