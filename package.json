@@ -1,0 +1,46 @@
+{
+  "name": "relay",
+  "version": "0.0.1-beta.0",
+  "description": "send bot messages to real users, real name should bot-relay",
+  "main": "index.js",
+  "scripts": {
+    "unit-test": "node `npm bin`/istanbul test `npm bin`/_mocha -- test/bootstrap.js test/unit/**/*.test.js",
+    "integration-test": "node `npm bin`/istanbul test `npm bin`/_mocha -- test/bootstrap.js test/integration/**/*.test.js",
+    "functional-test": "node `npm bin`/istanbul test `npm bin`/_mocha -- test/bootstrap.js test/functional/**/*.test.js",
+    "test": "npm run unit-test",
+    "jshint": "node `npm bin`/jshint src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nshimiye/perpetual.git"
+  },
+  "keywords": [
+    "bot",
+    "message",
+    "slack",
+    "chat"
+  ],
+  "author": "Marcellin <nmarcellin2@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nshimiye/perpetual/issues"
+  },
+  "homepage": "https://github.com/nshimiye/perpetual#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.9",
+    "dateformat": "^1.0.12",
+    "istanbul": "^0.4.3",
+    "jshint": "^2.9.1",
+    "mocha": "^2.4.5",
+    "mocha-lcov-reporter": "^1.2.0"
+  },
+  "dependencies": {
+    "@slack/client": "^2.3.0",
+    "botkit": "0.0.15"
+  },
+  "engines": {
+    "node": ">= 4.4.x",
+    "npm": ">= 2.15.x"
+  }
+}

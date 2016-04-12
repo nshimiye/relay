@@ -1,0 +1,12 @@
+// This project runs on Node v4 LTS, which has built-in ES6 features.
+// However, since jshint does not allow to specify node version,
+// jshint reports issues related to these es6 features
+// So we are going to use the new flag "esversion: 6"
+// @WARNING not all es6 feature are enabled
+// available features are "Promises", "generators", "Classes", "Template strings", "let", "const" @source: https://nodejs.org/en/docs/es
+// @TODO research: how does each of these ... node, strict, es6 ... affected the other
+{
+  "node" : true,
+  "strict": true,
+  "esversion": 6
+}
