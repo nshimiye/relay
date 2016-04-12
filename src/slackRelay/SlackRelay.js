@@ -20,10 +20,14 @@ class SlackRelay extends Relay {
 
   constructor(token, debug) {
     super();
+
+    // // @TODO query slack db
+    // slackWeb = relay.slackWeb(token);
+
     // rtm
     let _rtm = new RtmClient(token, {logLevel: 'none'});
     rtm.set(this, _rtm);
-    console.log('rtm connection started!', _rtm._send);
+    console.log('rtm connection started!', token, debug);
 
     // you need to wait for the client to fully connect before you can send messages
     _rtm.on(RTM_CLIENT_EVENTS.RTM_CONNECTION_OPENED, function () {
@@ -61,8 +65,8 @@ class SlackRelay extends Relay {
       if (err) {
         console.log('Error:', err);
       } else if(info) {
-        let team = info.team;
-        console.log('Team Info:', team.name, team.domain);
+        let team = info.team || {};
+        console.log('Team Info:',  team.name, team.domain);
       } else {
         // Unknown error
       }
@@ -138,7 +142,7 @@ class SlackRelay extends Relay {
   connect() {
     let _rtm = rtm.get(this);
     console.log('== connect ==', _rtm.slackAPIUrl, _rtm.userAgent, _rtm._token, _rtm.token);
-    _rtm.disconnect();
+    // _rtm.disconnect();
 
   }
   disconnect() {
@@ -182,6 +186,32 @@ class SlackRelay extends Relay {
   broadcast(message) {
 
     return new Promise((resolve, reject) => { reject({ok: false, message: 'not implemented yet' }); } );
+  }
+
+  /**
+   * @public
+   * Send a notification to slack user of channel (ex: notify user that you are typing)
+   * @param {String} name a user name or channel name
+   * @param {String} notification a notification type similar to event type from slack API ( https://api.slack.com/events )
+   *
+   */
+  notify(name, notification) {
+    let _rtm, _users, _channels, user, channel, channelid;
+    _rtm = rtm.get(this);
+    _channels = channels.get(this);
+    _users = users.get(this);
+
+    user = _users.find(user_param => { return user_param.name === name; }); // { name: '@mars', userid: 'U0QEFMFD5', channelid: 'U0QEFMFD5' };
+
+    if (user) {
+      channelid = user.channelid;
+    } else {
+      channel = _channels.find(channel_param => { return channel_param.name === name; }); // { name: '@mars', userid: 'U0QEFMFD5', channelid: 'U0QEFMFD5' };
+      channelid = channel.channelid;
+    }
+
+    _rtm.sendTyping(channelid);
+
   }
 
 }

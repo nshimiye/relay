@@ -23,4 +23,4 @@ let getLogger = function getLogger(optLogLevel, optTransport) {
 };
 
 
-module.exports.getLogger = getLogger;
+module.exports = getLogger;

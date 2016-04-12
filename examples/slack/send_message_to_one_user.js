@@ -34,3 +34,28 @@ setInterval(() => {
   // console.log('message broadcast setTimeout = ', status);
 
 }, 15000);
+
+
+
+
+
+
+/** START for readme **/
+const relay = require('bot-relay');
+let token = '<slack bot token>'; //@TODO add url to get this token
+let slackRelay = relay.slackRelay(token);
+
+slackRelay.connect().then( relayInstance => {
+  // send messages to known users
+  relayInstance.send('Hi there!', 'mars');
+  // broadcast messages to all users
+  relayInstance.broadcast('Sorry for spamming!');
+  // post messages to channels
+  relayInstance.post('Helloo! I am alive :)');
+
+}, connectionError => {
+  // you can try to reconnect
+  // you can verify with slack to make sure your token is still valid
+});
+
+/** END for readme **/

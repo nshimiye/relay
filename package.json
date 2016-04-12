@@ -1,5 +1,5 @@
 {
-  "name": "relay",
+  "name": "bot-relay",
   "version": "0.0.1-beta.0",
   "description": "send bot messages to real users, real name should bot-relay",
   "main": "index.js",
@@ -32,6 +32,7 @@
     "dateformat": "^1.0.12",
     "istanbul": "^0.4.3",
     "jshint": "^2.9.1",
+    "lodash": "^4.10.0",
     "mocha": "^2.4.5",
     "mocha-lcov-reporter": "^1.2.0",
     "winston": "^2.2.0"

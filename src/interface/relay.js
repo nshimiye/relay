@@ -1,12 +1,13 @@
 'use strict';
 
-const getLogger = require('../helpers').getLogger;
+const getLogger = require('../../helpers').getLogger;
 
 class Relay {
 
   constructor() {
     let logger = getLogger();
-    logger('relay instance created');
+    logger('relay instance created'); // @TODO find out how this works
+    console.log('relay instance created');
   }
   /**
    * public
