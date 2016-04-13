@@ -14,25 +14,31 @@ slackRelay = relay.slackRelay(token);
 
 // this more of connect than start
 slackRelay.connect()
-.then( relayInstance => {
-  // post message to a channel
-  console.log('start the listener ...', relayInstance);
+.then(relayInstance => {
+  console.log('start the listener ...', relayInstance.users);
 
-  let lastTime, users, channels, user, channel, message;
-  lastTime = Date.now();
+  let replyHandler = function(relayObject, message, user, channel) {
 
-  setInterval(() => {
+    console.log('respond to user ...', relayObject, message, user, channel);
 
-    message = `Heyo! Time since my birth is ${Date.now() - lastTime}`;
-    let status = relayInstance.send(message, 'mars');
-    console.log('message send action setTimeout = ', status);
+    if (channel) {
+      // @TODO relayObject.post('Sorry for spamming!', channel);
+      slackRelay.notify(channel, 'user_typing');
+      setTimeout(() => {
+        relayObject.send('Sorry for spamming!', channel);
+      }, 3000);
 
-  }, 5000);
+    } else {
+      slackRelay.notify(user, 'user_typing');
+      relayObject.send('Sorry for spamming!', user);
+    }
+  };
+  // return void or throws an error if something wrong happens
+  console.log('start the listener ...');
+  relayInstance.listen('direct_message', replyHandler);
 
-}, connectionError => {
-  // you can try to reconnect
-  // you can verify with slack to make sure your token is still valid
 });
+
 
 
 /** START for readme **/

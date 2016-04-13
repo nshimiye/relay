@@ -13,6 +13,7 @@ describe('SlackRelay', function() {
     it('returns a promise all the time', function (done) {
       let slackRelay = new SlackRelay(token);
       expect(slackRelay.connect()).to.be.a('promise');
+      done();
     });
     it('resolves with an instance of SlackRelay class', function (done) {
       throw new Error('Not implemented yet');
@@ -32,14 +33,21 @@ describe('SlackRelay', function() {
 
   describe('#post()', function() {
     it('returns a promise all the time', function (done) {
-    throw new Error('Not implemented yet');
+      throw new Error('Not implemented yet');
     });
 
   });
 
   describe('#broadcast()', function() {
     it('returns a promise all the time', function (done) {
-    throw new Error('Not implemented yet');
+      throw new Error('Not implemented yet');
+    });
+
+  });
+
+  describe('#listen()', function() {
+    it('returns a promise all the time', function (done) {
+      throw new Error('Not implemented yet');
     });
 
   });

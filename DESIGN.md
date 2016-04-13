@@ -111,3 +111,52 @@ slackRelay.connect().then( relayInstance => {
   // you can verify with slack to make sure your token is still valid
 });
 ```
+
+
+# Replying to a user's message
+* Direct response
+This is a response that the bot sends in less than 2 seconds.
+
+Botkit handles this very well.
+
+* Delayed response
+Sometimes you may want to run a service that will take more than 2 seconds to complete before you can respond.
+Handling this case would require a use of promises or callbacks used to send the response.
+Relay uses promise
+
+Steps:
+* listen to channels
+* if user sends a message to the bot's channel, then the response handler (of type Promise is run)
+
+Notes:
+* Once the bot is connected, it should be able to receive messages from other connected users.
+* So the developer should provide a "function definition" on how to handle these incoming messages.
+* if no handler has been provided, the messages are ignored
+
+```javascript
+const relay = require('bot-relay');
+let token = '<slack bot token>'; //@TODO add url to get this token
+let slackRelay = relay.slackRelay(token);
+slackRelay.connect().then( relayInstance => {
+  // the reply handler function is given
+  // 1. the relay instance that will be used to send response
+  // 2. the message received
+  // 3. the user name of user who sent the message
+  // 4. the channel name if user sent the message through a channel different from his/her private channel with the bot
+  let replyHandler = function(relayInstance, message, user, channel) {
+    if (channel) {
+      relayInstance.post('Sorry for spamming!', channel);
+    } else {
+      relayInstance.send('Sorry for spamming!', user);
+    }
+  };
+
+  // @TODO research on why there is a big usage of "on" instead of "listen"
+  // relayInstance.on('direct-message', replyHandler);
+  relayInstance.listen('direct-message', replyHandler);
+
+}, connectionError => {
+  // you can try to reconnect
+  // you can verify with slack to make sure your token is still valid
+});
+```

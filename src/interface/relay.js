@@ -6,8 +6,8 @@ class Relay {
 
   constructor() {
     let logger = getLogger();
-    logger('relay instance created'); // @TODO find out how this works
-    console.log('relay instance created');
+    logger('verbose', 'relay instance created 1'); // @TODO find out how this works
+    console.log('relay instance created 2');
   }
   /**
    * public

@@ -21,11 +21,8 @@ setTimeout(() => {
   // notification
   slackRelay.notify('mars', 'user_typing');
   setTimeout(() => {
-    // .find function is an es6 function
-    user = users.find(user => { return user.name === 'mars'; }); // { name: '@mars', userid: 'U0QEFMFD5', channelid: 'U0QEFMFD5' };
-    console.log('Found user = ', user);
     message = { text: `Heyo! Time since my birth is ${Date.now() - lastTime}` };
-    let status = slackRelay.send(message, user);
+    let status = slackRelay.send(message, 'mars');
   }, 5000);
 
 }, 15000);
