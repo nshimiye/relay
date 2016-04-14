@@ -4,11 +4,14 @@
  * Stand for a bot user
  * in charge of carrying messages from a locally confugured bot to slack
  */
-const Relay = require('../interface/relay');
+ const events = require('events');
+
 const RtmClient = require('@slack/client').RtmClient;
 const WebClient = require('@slack/client').WebClient;
 const RTM_CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS.RTM;
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
+
+const Relay = require('../interface/relay');
 
 // how to create private properties
 const rtm = new WeakMap();
@@ -18,22 +21,30 @@ const me = new WeakMap();
 const users = new WeakMap();
 const channels = new WeakMap();
 const token_private = new WeakMap();
+const handler_holder = new WeakMap();
+const event_emitter = new WeakMap();
 
 class SlackRelay extends Relay {
 
   constructor(token, debug) {
     super();
     token_private.set(this, token);
+    handler_holder.set(this, {});
 
     // rtm
     let _rtm = new RtmClient(token, {logLevel: 'none'});
     rtm.set(this, _rtm);
     console.log('rtm  instance created!', token, debug);
 
-    // web no need to create a class for managing web api, because we won't really be using it that much
+    // web
+    // no need to create a class for managing web api, because we won't really be using it that much
     // 1. it is used to send attachments
     let _web = new WebClient(token);
     web.set(this, _web);
+
+    // event
+    let _event_emitter = new events.EventEmitter();
+    event_emitter.set(this, _event_emitter);
   }
 
   get token() {
@@ -270,19 +281,26 @@ class SlackRelay extends Relay {
 
   /**
    * @public
-   * @param channel_type ex: direct_message
+   * @param {String} message_type ex: direct_message
    * @param {Function} handler function tu run once the message is received
    * @return {Promise} just to make sure we can easily catch unknown errors
    */
-  listen(channel_type, handler) {
+  listen(message_type, handler) {
     let _rtm = rtm.get(this);
+    let _me = me.get(this);
+    let _handlerHolder = handler_holder.get(this);
     let _users = this.users;
     let _channels = this.channels;
-    let _me = me.get(this);
     let self = this;
 
     return new Promise((resolve, reject) => {
 
+      if (typeof replyHandler !== 'function') {
+        reject({ok: false, message: 'the handler must be a function' });
+      }
+
+      // store the handler
+      _handlerHolder[message_type] = handler;
       _rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         let bot_id = _me.userid;
         let found_channel = _channels.find(channel_param => channel_param.channelid === message.channel) || {},
@@ -292,6 +310,7 @@ class SlackRelay extends Relay {
         console.log('Message:', bot_id, message, direct_message);
         console.log('Message:', self.message_separation(message.text || '', bot_id));
         let clean_message, parsed_message, user, channel, event;
+        event = 'direct_message';
 
         if (direct_message) {
           parsed_message = message.text;
@@ -308,11 +327,19 @@ class SlackRelay extends Relay {
 
         // @DONE run the handler function
         // @DONE right now message object is a string
-        handler(self, parsed_message, user, channel);
+        console.log('event type: ', event);
+
+        let replyHandler = _handlerHolder[event];
+        console.log('event handling type: ', typeof replyHandler);
+        console.log('event handling function: ', replyHandler);
+        if (typeof replyHandler === 'function') {
+          replyHandler.apply(this, [self, parsed_message, user, channel]);
+        }
 
       });
 
-      reject({ok: false, message: 'not implemented yet' });
+      resolve({ok: true, message: 'A message listener has just been turned on!', data: handler});
+
     });
   }
 
@@ -369,6 +396,38 @@ class SlackRelay extends Relay {
   }
 
   /***** END   get team users and channels *****/
+
+  /**
+   * call the rtm.on function on
+   */
+  _intializeSlackListener() {
+    let _rtm = rtm.get(this);
+    let _me = me.get(this);
+    let _channels = this.channels;
+    let _users = this.users;
+    let _event_emitter = event_emitter.get(this);
+
+    let self = this;
+    _rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
+
+      let bot_id = _me.userid;
+      let found_channel = _channels.find(channel_param => channel_param.channelid === message.channel) || {},
+        found_user = _users.find(user_param => user_param.channelid === message.channel) || {};
+      // direct_message : message.user = ( _users.find(user => user.channelid === message.channel) || {} ).userid
+      let direct_message = message.user === found_user.userid;
+      console.log('Message:', bot_id, message, direct_message);
+      let clean_message, parsed_message, user, channel, event;
+      event = 'direct_message';
+
+      if (!direct_message) {
+        clean_message = self.message_separation(message.text || '', bot_id);
+        event = clean_message.event; // @TODO respond to messages depending on the event type, right now the channel_type is being ignored
+      }
+
+      _event_emitter.emit(event, [self, parsed_message, user, channel]); // @TODO
+
+    });
+  }
 
   // @TODO remove this at the end of implemention
   message_separation(message, bot_id) {

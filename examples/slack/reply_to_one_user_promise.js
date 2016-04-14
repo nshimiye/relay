@@ -19,10 +19,17 @@ slackRelay.connect()
 .then(relayInstance => {
   console.log('start the listener ...', relayInstance.users);
 
+  //@TODO for direct message, it does not make sense to provide a channel field
   let replyHandler = function(relayObject, message, user, channel) {
-
     console.log('respond to user ...', relayObject, message, user, channel);
-
+    if(user) {
+      slackRelay.notify(user, 'user_typing');
+      relayObject.send('Sorry for spamming!', user);
+    }
+  };
+  // when receiving messages from a channel, it is also helpful to provide the user who posted the message
+  // @TODO in your handler, you may want to send private message to this user
+  let channelReplyHandler = function(relayObject, message, user, channel) {
     if (channel) {
       // @TODO relayObject.post('Sorry for spamming!', channel);
       slackRelay.notify(channel, 'user_typing');
@@ -52,14 +59,13 @@ slackRelay.connect()
 
       });
 
-    } else {
-      slackRelay.notify(user, 'user_typing');
-      relayObject.send('Sorry for spamming!', user);
     }
   };
+
   // return void or throws an error if something wrong happens
   console.log('start the listener ...');
   relayInstance.listen('direct_message', replyHandler);
+  relayInstance.listen('direct_mention', channelReplyHandler);
 
 });
 
