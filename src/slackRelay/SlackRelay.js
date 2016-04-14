@@ -51,10 +51,11 @@ class SlackRelay extends Relay {
   }
 
   connect() {
+    let connectionTimeout;
     let _rtm = rtm.get(this);
     let token = token_private.get(this);
-    console.log('== connect ==', _rtm.slackAPIUrl, _rtm.userAgent, _rtm._token);
     let slackRelayInstance = this;
+    console.log('== connect ==', _rtm.slackAPIUrl, _rtm.userAgent, _rtm._token);
     let promisedResponse = new Promise(function(resolve, reject) {
       // @TODO make sure bot is not already connected
       // if so then just return this instance
@@ -84,12 +85,14 @@ class SlackRelay extends Relay {
         console.log('RTM_CLIENT_EVENTS.DISCONNECT', _rtm.connected, message, cause);
 
         let rtm_out = _rtm.removeListener(RTM_CLIENT_EVENTS.DISCONNECT);
+        clearTimeout(connectionTimeout);
         reject({ok: false, message, data: cause});
       });
       _rtm.on(RTM_CLIENT_EVENTS.WS_ERROR, function () {
         // This will send the message 'this is a test message' to the channel identified by id 'C0CHZA86Q'
         console.log('RTM_CLIENT_EVENTS.WS_ERROR', _rtm.connected, arguments);
         slackRelayInstance.getTeamInfo(token, _rtm);
+        clearTimeout(connectionTimeout);
         reject({ok: false, message: 'Unknown error while connecting', data: arguments});
       });
 
@@ -98,11 +101,15 @@ class SlackRelay extends Relay {
         // no need to listen to authentication
         let rtm_out = _rtm.removeListener(RTM_CLIENT_EVENTS.RTM_CONNECTION_OPENED);
         resolve(slackRelayInstance);
+        clearTimeout(connectionTimeout);
       });
 
       // @DONE start the connection
       _rtm.start();
       console.log('connection opened!', _rtm.connected);
+      connectionTimeout = setTimeout( () => {
+        reject({ok: false, message: 'It is taking too long to connect to slack', data: null});
+      }, 5000);
 
     });
 
