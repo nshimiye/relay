@@ -25,9 +25,6 @@ class SlackRelay extends Relay {
     super();
     token_private.set(this, token);
 
-    // // @TODO query slack db
-    // slackWeb = relay.slackWeb(token);
-
     // rtm
     let _rtm = new RtmClient(token, {logLevel: 'none'});
     rtm.set(this, _rtm);

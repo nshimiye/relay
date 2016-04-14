@@ -1,4 +1,4 @@
-# relay
+# bot-relay
 Bot user that can send messages to different users
 
 # Inspiration
@@ -7,6 +7,24 @@ Botkit easily handles responding to messages from users. However, it sometimes f
 I could not find an easy way to handle this.
 * No easy way to send a "typing ..." notification
 * No easy way to send multiple messages with delay in between, to a specific user.
+
+# Thinking
+The slogan here is "Simple is Better", this package was built to make it easy to connect external systems to slack.
+Slack is a messaging app, so the main thing that the user does on a daily basis is
+* Send a message to others
+* Reply to messages from other users
+
+Slack achieves this through both RTM and WEB api's, bot-relay will provide a wrapper which handles these two use-cases seamlessly.
+i.e. Given a [slack token](), bot-relay will allow u to send and receive messages to slack by providing a user name or channel.
+
+bot-relay use both RTM and WEB api's under the hood.
+
+Example
+```javascript
+const relay = require('bot-relay');
+let slackRelay = relay.slackRelay('<token>');
+slackRelay.send('hi there!', 'mars'); // send a message to mars
+```
 
 # Covered
 * Turn the bot on and off.
