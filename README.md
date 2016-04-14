@@ -1,11 +1,11 @@
 # relay
 
-[![Join the chat at https://gitter.im/nshimiye/relay](https://badges.gitter.im/nshimiye/relay.svg)](https://gitter.im/nshimiye/relay?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Bot user that can send messages to different users
 
 [![Build Status](https://travis-ci.org/nshimiye/relay.svg?branch=master)](https://travis-ci.org/nshimiye/relay)
 [![Coverage Status](https://coveralls.io/repos/github/nshimiye/relay/badge.svg?branch=master)](https://coveralls.io/github/nshimiye/relay?branch=master)
 [![Code Climate](https://codeclimate.com/github/nshimiye/relay/badges/gpa.svg)](https://codeclimate.com/github/nshimiye/relay)
+[![Join the chat at https://gitter.im/nshimiye/relay](https://badges.gitter.im/nshimiye/relay.svg)](https://gitter.im/nshimiye/relay?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Installation
 ```bash
