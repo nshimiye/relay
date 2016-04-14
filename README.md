@@ -1,4 +1,6 @@
 # relay
+
+[![Join the chat at https://gitter.im/nshimiye/relay](https://badges.gitter.im/nshimiye/relay.svg)](https://gitter.im/nshimiye/relay?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Bot user that can send messages to different users
 
 [![Build Status](https://travis-ci.org/nshimiye/relay.svg?branch=master)](https://travis-ci.org/nshimiye/relay)
