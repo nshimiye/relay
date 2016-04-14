@@ -254,8 +254,8 @@ class SlackRelay extends Relay {
 
   /**
    * @public
-   * @param channel_type
-   * @param {Function} handler
+   * @param channel_type ex: direct_message
+   * @param {Function} handler function tu run once the message is received
    * @return {Promise} just to make sure we can easily catch unknown errors
    */
   listen(channel_type, handler) {

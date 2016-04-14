@@ -4,7 +4,7 @@
 before(function(done) {
 
   // Increase the Mocha timeout so that Sails has enough time to lift.
-  this.timeout(20000);
+  this.timeout(200000);
   done();
 });
 
