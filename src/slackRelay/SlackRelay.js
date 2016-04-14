@@ -36,20 +36,6 @@ class SlackRelay extends Relay {
     // web
     let _web = new WebClient(token);
     web.set(this, _web);
-
-    _rtm.on(RTM_CLIENT_EVENTS.DISCONNECT, function () {
-      // This will send the message 'this is a test message' to the channel identified by id 'C0CHZA86Q'
-      console.log('connection closed', arguments);
-    });
-
-    _rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
-      console.log('Reaction added:', reaction);
-    });
-
-    _rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
-      console.log('Reaction removed:', reaction);
-    });
-
   }
 
   get token() {
@@ -92,10 +78,17 @@ class SlackRelay extends Relay {
         console.log('listener removed!', rtm_out.slackAPIUrl);
 
       });
-      //
+
+      // 1. runs if the token used is invalid
+      _rtm.on(RTM_CLIENT_EVENTS.DISCONNECT, function (message, cause) {
+        console.log('RTM_CLIENT_EVENTS.DISCONNECT', _rtm.connected, message, cause);
+
+        let rtm_out = _rtm.removeListener(RTM_CLIENT_EVENTS.DISCONNECT);
+        reject({ok: false, message, data: cause});
+      });
       _rtm.on(RTM_CLIENT_EVENTS.WS_ERROR, function () {
         // This will send the message 'this is a test message' to the channel identified by id 'C0CHZA86Q'
-        console.log('connection failed!', _rtm.connected);
+        console.log('RTM_CLIENT_EVENTS.WS_ERROR', _rtm.connected, arguments);
         slackRelayInstance.getTeamInfo(token, _rtm);
         reject({ok: false, message: 'Unknown error while connecting', data: arguments});
       });
@@ -130,38 +123,108 @@ class SlackRelay extends Relay {
    * @param { json } user
    */
   send(message, name) { // => message = { text: <> } or <>,  user = { username: <>, userid: <> }
-    // rtm.sendMessage('this is a test message', 'C0CHZA86Q', function messageSent() {
-    //   // optionally, you can supply a callback to execute once the message has been sent
-    // });
-    let user, found_channel, channelid;
-    let _rtm = rtm.get(this);
-    let _web = web.get(this);
-    let text = (typeof message === 'string')? message : message.text; // type: String, Ex: 'Hi there!'
-    let data = message.data; // type: Object, ex: { attachments: [{title: 'Time in our offices', fields: [{ key: 'New York - USA', value: '' }, { key: 'Kathmandu - Nepal', value: '' }] }] }
+    let self = this;
+    return new Promise((resolve, reject) => {
 
-    // .find function is an es6 function
-    user = this.users.find(user_param => { return user_param.name === name; }) || {};
-    found_channel = this.channels.find(channel => channel.name === name) || {};
-    console.log('Found user = ', user, found_channel);
-    // try find user if not then look for named channel
+      // rtm.sendMessage('this is a test message', 'C0CHZA86Q', function messageSent() {
+      //   // optionally, you can supply a callback to execute once the message has been sent
+      // });
+      let user, channelid;
+      let text = (typeof message === 'string')? message : message.text; // type: String, Ex: 'Hi there!'
+      let data = message.data; // type: Object, ex: { attachments: [{title: 'Time in our offices', fields: [{ key: 'New York - USA', value: '' }, { key: 'Kathmandu - Nepal', value: '' }] }] }
 
-    channelid = user.channelid || found_channel.channelid;
-    if (data) {
-      _web.chat.postMessage(channelid, text, data, (err, result) => {
-        console.log('done', err, result);
+      // .find function is an es6 function
+      user = self.users.find(user_param => { return user_param.name === name; }) || {};
+      console.log('Found user = ', user);
+      // try find user if not then look for named channel
+
+      channelid = user.channelid;
+      this._genericSend(text, data, channelid).then(success_object => {
+        resolve(success_object);
+      }, error_object => {
+        reject(error_object);
+      }).catch(e => {
+        let ok = false,
+          data = e,
+          message = 'unknown error found';
+        reject({ ok, message, data });
       });
-    } else if(text) {
-      _rtm.sendMessage(text, channelid, (err, result) => {
-        console.log('done sending message', err, result);
-      });
-    } else {
-      // @TODO reject saying the some info is missing
-    }
-    return new Promise((resolve, reject) => { resolve({ok: false, message: 'not sure if message got sent' }); } );
+
+      resolve({ok: false, message: 'not sure if message got sent' });
+
+    });
   }
 
   /**
-   * public
+   * @public
+   * post a message to slack channel
+   * @param { json/string } message
+   * @param { json } user
+   */
+  post(message, channel_name) { // => message = { text: <> } or <>,  user = { username: <>, userid: <> }
+    let self = this;
+    return new Promise((resolve, reject) => {
+
+      // rtm.sendMessage('this is a test message', 'C0CHZA86Q', function messageSent() {
+      //   // optionally, you can supply a callback to execute once the message has been sent
+      // });
+      let found_channel, channelid;
+      let text = (typeof message === 'string')? message : message.text; // type: String, Ex: 'Hi there!'
+      let data = message.data; // type: Object, ex: { attachments: [{title: 'Time in our offices', fields: [{ key: 'New York - USA', value: '' }, { key: 'Kathmandu - Nepal', value: '' }] }] }
+
+      // .find function is an es6 function
+      found_channel = self.channels.find(channel => channel.name === channel_name) || {};
+      console.log('Found channel = ',found_channel);
+      // try find user if not then look for named channel
+
+      channelid = found_channel.channelid;
+      this._genericSend(text, data, channelid).then(success_object => {
+        resolve(success_object);
+      }, error_object => {
+        reject(error_object);
+      }).catch(e => {
+        let ok = false,
+          data = e,
+          message = 'unknown error found';
+        reject({ ok, message, data });
+      });
+
+    });
+  }
+
+  /**
+   * @private
+   * send messages on behalf of "send" or "post" method
+   * @param {String} text
+   * @param {} data
+   * @param {String} channelid
+   * @return {Promise} just to make sure we can easily catch unknown errors
+   */
+  _genericSend(text, data, channelid) {
+    let _rtm = rtm.get(this);
+    let _web = web.get(this);
+    return new Promise((resolve, reject) => {
+
+      if (data) {
+        _web.chat.postMessage(channelid, text, data, (err, result) => {
+          console.log('done', err, result);
+        });
+      } else if(text) {
+        _rtm.sendMessage(text, channelid, (err, result) => {
+          console.log('done sending message', err, result);
+        });
+      } else {
+        // @TODO reject saying the some info is missing
+        reject({ok: false, message: 'missing message or attachement ', data: null });
+      }
+
+      resolve({ok: true, message: 'not sure if message got sent' });
+
+    });
+  }
+
+  /**
+   * @public
    */
   broadcast(message) {
 
@@ -173,7 +236,7 @@ class SlackRelay extends Relay {
    * Send a notification to slack user of channel (ex: notify user that you are typing)
    * @param {String} name a user name or channel name
    * @param {String} notification a notification type similar to event type from slack API ( https://api.slack.com/events )
-   * @return Promise which resolve with a success object or rejects with an error object
+   * @return {Promise} which resolve with a success object or rejects with an error object
    */
   notify(name, notification) {
     let _rtm, _users, _channels, user, channel, channelid;
@@ -184,6 +247,7 @@ class SlackRelay extends Relay {
 
     channelid = user.channelid || channel.channelid;
 
+    // only one notification type is supported 'user_typing'
     _rtm.sendTyping(channelid);
 
   }
@@ -192,7 +256,7 @@ class SlackRelay extends Relay {
    * @public
    * @param channel_type
    * @param {Function} handler
-   * @return void
+   * @return {Promise} just to make sure we can easily catch unknown errors
    */
   listen(channel_type, handler) {
     let _rtm = rtm.get(this);
@@ -200,34 +264,40 @@ class SlackRelay extends Relay {
     let _channels = this.channels;
     let _me = me.get(this);
     let self = this;
-    _rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-      let bot_id = _me.userid;
-      let found_channel = _channels.find(channel => channel.channelid === message.channel) || {},
-        found_user = _users.find(user => user.channelid === message.channel) || {};
-      // direct_message : message.user = ( _users.find(user => user.channelid === message.channel) || {} ).userid
-      let direct_message = message.user === found_user.userid;
-      console.log('Message:', bot_id, message, direct_message);
-      console.log('Message:', self.message_separation(message.text || '', bot_id));
-      let clean_message, parsed_message, user, channel, event;
 
-      if (direct_message) {
-        parsed_message = message.text;
-        user = found_user.name;
-        // @TODO make sure channel is undefined
-      } else {
-        clean_message = self.message_separation(message.text || '', bot_id);
-        parsed_message = clean_message.message;
-        event = clean_message.event; // @TODO
-        // lookup channel name
-        channel = found_channel.name;
-        // @TODO make sure user is undefined
+    return new Promise((resolve, reject) => {
 
-      }
+      _rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
+        let bot_id = _me.userid;
+        let found_channel = _channels.find(channel => channel.channelid === message.channel) || {},
+          found_user = _users.find(user => user.channelid === message.channel) || {};
+        // direct_message : message.user = ( _users.find(user => user.channelid === message.channel) || {} ).userid
+        let direct_message = message.user === found_user.userid;
+        console.log('Message:', bot_id, message, direct_message);
+        console.log('Message:', self.message_separation(message.text || '', bot_id));
+        let clean_message, parsed_message, user, channel, event;
 
-      //@TODO run the handler function
-      // @TODO right now message object is a string
-      handler(self, parsed_message, user, channel);
+        if (direct_message) {
+          parsed_message = message.text;
+          user = found_user.name;
+          // @TODO make sure channel is undefined
+        } else {
+          clean_message = self.message_separation(message.text || '', bot_id);
+          parsed_message = clean_message.message;
+          event = clean_message.event; // @TODO
+          // lookup channel name
+          channel = found_channel.name;
+          // @TODO make sure user is undefined
 
+        }
+
+        //@TODO run the handler function
+        // @TODO right now message object is a string
+        handler(self, parsed_message, user, channel);
+
+      });
+
+      reject({ok: false, message: 'not implemented yet' });
     });
   }
 

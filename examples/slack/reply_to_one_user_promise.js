@@ -41,14 +41,14 @@ slackRelay.connect()
       });
       tellMeAJoke.then(joke => {
         console.log(joke);
-        relayObject.send(`${joke} :sweat_smile: :sweat_smile:`, channel);
+        relayObject.post(`${joke} :sweat_smile: :sweat_smile:`, channel);
       }, error => {
         // @TODO report error
         console.error(error);
-        relayObject.send(`not found :(`, channel);
+        relayObject.post(`not found :(`, channel);
       })
       .catch(e => {
-        relayObject.send(`not found :(`, channel);
+        relayObject.post(`not found :(`, channel);
 
       });
 
