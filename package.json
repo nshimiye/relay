@@ -41,11 +41,10 @@
   },
   "dependencies": {
     "@slack/client": "^2.3.0",
-    "botkit": "0.0.15",
-    "winston": "^2.2.0"
+    "botkit": "0.0.15"
   },
   "engines": {
-    "node": ">= 4.4.x",
-    "npm": ">= 2.15.x"
+    "node": ">=4.4.0",
+    "npm": ">=2.15.0"
   }
 }
