@@ -1,6 +1,6 @@
 # relay
 
-Bot user that can send messages to different users
+Bot user that can send and receive messages to and from different users
 
 [![npm version](https://badge.fury.io/js/bot-relay.svg)](https://badge.fury.io/js/bot-relay)
 [![Dependency Status](https://gemnasium.com/badges/github.com/nshimiye/relay.svg)](https://gemnasium.com/github.com/nshimiye/relay)
