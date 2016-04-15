@@ -2,6 +2,9 @@
 
 Bot user that can send messages to different users
 
+[![Dependency Status](https://gemnasium.com/badges/github.com/nshimiye/relay.svg)](https://gemnasium.com/github.com/nshimiye/relay)
+
+
 [![Build Status](https://travis-ci.org/nshimiye/relay.svg?branch=master)](https://travis-ci.org/nshimiye/relay)
 [![Coverage Status](https://coveralls.io/repos/github/nshimiye/relay/badge.svg?branch=master)](https://coveralls.io/github/nshimiye/relay?branch=master)
 [![Code Climate](https://codeclimate.com/github/nshimiye/relay/badges/gpa.svg)](https://codeclimate.com/github/nshimiye/relay)
