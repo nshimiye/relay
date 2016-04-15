@@ -1,7 +1,7 @@
 {
   "name": "bot-relay",
   "version": "1.0.1-beta.1",
-  "description": "send bot messages to real users, real name should bot-relay",
+  "description": "Bot user that can send and receive messages to and from different users",
   "main": "index.js",
   "scripts": {
     "unit-test": "node `npm bin`/istanbul test `npm bin`/_mocha -- test/bootstrap.js test/unit/**/*.test.js",
