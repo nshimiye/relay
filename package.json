@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@slack/client": "^2.3.0",
-    "botkit": "0.0.15"
+    "botkit": "^0.1.0"
   },
   "engines": {
     "node": ">=4.4.0",
