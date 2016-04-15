@@ -33,6 +33,7 @@ slackRelay.connect()
     if (channel) {
       // @TODO relayObject.post('Sorry for spamming!', channel);
       slackRelay.notify(channel, 'user_typing');
+      // slackRelay.notify(user, 'user_typing');
 
       // @source: http://tambal.azurewebsites.net/joke/random
       let source = 'http://tambal.azurewebsites.net/joke/random';
@@ -49,13 +50,15 @@ slackRelay.connect()
       tellMeAJoke.then(joke => {
         console.log(joke);
         relayObject.post(`${joke} :sweat_smile: :sweat_smile:`, channel);
+        // relayObject.send(`${joke} :sweat_smile: :sweat_smile:`, user);
       }, error => {
         // @TODO report error
         console.error(error);
-        relayObject.post(`not found :(`, channel);
+        relayObject.post(`can't find a joke for you :sad_face:`, channel);
       })
       .catch(e => {
-        relayObject.post(`not found :(`, channel);
+        console.error(e);
+        relayObject.post(`I ran into problems :sad_face:, please contact admin at nmarcellin2@gmail.com`, channel);
 
       });
 
@@ -65,7 +68,8 @@ slackRelay.connect()
   // return void or throws an error if something wrong happens
   console.log('start the listener ...');
   relayInstance.listen('direct_message', replyHandler);
-  relayInstance.listen('direct_mention', channelReplyHandler);
+  // relayInstance.listen('direct_message', channelReplyHandler);
+  relayInstance.listen(['direct_mention', 'mention', 'ambient'], channelReplyHandler);
 
 });
 

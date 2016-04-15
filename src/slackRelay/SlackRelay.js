@@ -3,6 +3,7 @@
 /**
  * Stand for a bot user
  * in charge of carrying messages from a locally confugured bot to slack
+ * @author Marcellin<nmarcellin2@gmail.com>
  */
  const events = require('events');
 
@@ -21,7 +22,6 @@ const me = new WeakMap();
 const users = new WeakMap();
 const channels = new WeakMap();
 const token_private = new WeakMap();
-const handler_holder = new WeakMap();
 const event_emitter = new WeakMap();
 
 class SlackRelay extends Relay {
@@ -29,12 +29,15 @@ class SlackRelay extends Relay {
   constructor(token, debug) {
     super();
     token_private.set(this, token);
-    handler_holder.set(this, {});
 
     // rtm
     let _rtm = new RtmClient(token, {logLevel: 'none'});
     rtm.set(this, _rtm);
     console.log('rtm  instance created!', token, debug);
+
+    // it makes sense to start listening after the instance initialization because
+    // this ensures us that only on listener is created
+    this._intializeSlackListener();
 
     // web
     // no need to create a class for managing web api, because we won't really be using it that much
@@ -111,8 +114,9 @@ class SlackRelay extends Relay {
           console.log('connection opened!');
           // no need to listen to authentication
           let rtm_out = _rtm.removeListener(RTM_CLIENT_EVENTS.RTM_CONNECTION_OPENED);
-          resolve(slackRelayInstance);
+
           clearTimeout(connectionTimeout);
+          resolve(slackRelayInstance);
         });
 
         // @DONE start the connection
@@ -281,62 +285,38 @@ class SlackRelay extends Relay {
 
   /**
    * @public
-   * @param {String} message_type ex: direct_message
-   * @param {Function} handler function tu run once the message is received
+   * @param {String or Array} message_type ex: direct_message, direct_mention, mention, ambient
+   * @param {Function} handler function to run once the message is received
    * @return {Promise} just to make sure we can easily catch unknown errors
    */
   listen(message_type, handler) {
-    let _rtm = rtm.get(this);
-    let _me = me.get(this);
-    let _handlerHolder = handler_holder.get(this);
-    let _users = this.users;
-    let _channels = this.channels;
-    let self = this;
-
+    // let _rtm = rtm.get(this);
+    // let _me = me.get(this);
+    // let _handlerHolder = handler_holder.get(this);
+    let _event_emitter = event_emitter.get(this);
+    // let _users = this.users;
+    // let _channels = this.channels;
+    // let self = this;
     return new Promise((resolve, reject) => {
 
-      if (typeof replyHandler !== 'function') {
+      if (typeof handler !== 'function') {
         reject({ok: false, message: 'the handler must be a function' });
       }
 
-      // store the handler
-      _handlerHolder[message_type] = handler;
-      _rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-        let bot_id = _me.userid;
-        let found_channel = _channels.find(channel_param => channel_param.channelid === message.channel) || {},
-          found_user = _users.find(user_param => user_param.channelid === message.channel) || {};
-        // direct_message : message.user = ( _users.find(user => user.channelid === message.channel) || {} ).userid
-        let direct_message = message.user === found_user.userid;
-        console.log('Message:', bot_id, message, direct_message);
-        console.log('Message:', self.message_separation(message.text || '', bot_id));
-        let clean_message, parsed_message, user, channel, event;
-        event = 'direct_message';
-
-        if (direct_message) {
-          parsed_message = message.text;
-          user = found_user.name;
-          // @DONE make channel is undefined => it is not set to anything from it creation to this point
-        } else {
-          clean_message = self.message_separation(message.text || '', bot_id);
-          parsed_message = clean_message.message;
-          event = clean_message.event; // @TODO respond to messages depending on the event type, right now the channel_type is being ignored
-          // lookup channel name
-          channel = found_channel.name;
-          // @DONE make sure is undefined => it is not set to anything from it creation to this point
-        }
-
-        // @DONE run the handler function
-        // @DONE right now message object is a string
-        console.log('event type: ', event);
-
-        let replyHandler = _handlerHolder[event];
-        console.log('event handling type: ', typeof replyHandler);
-        console.log('event handling function: ', replyHandler);
-        if (typeof replyHandler === 'function') {
-          replyHandler.apply(this, [self, parsed_message, user, channel]);
-        }
-
-      });
+      // add it to the list of events to listen to
+      if (typeof message_type === 'string') { // input is a string
+        _event_emitter.on(message_type, handler);
+      } else if ( message_type && message_type.length) { // input is non-empty array
+        message_type.forEach(mt => {
+          _event_emitter.on(mt, handler);
+        });
+      } else {
+        // tell user about supported message types
+        let ok = false;
+        let message = 'supported types are direct_message, direct_mention, mention, and ambient';
+        let data = message_type;
+        reject({ok, message, data });
+      }
 
       resolve({ok: true, message: 'A message listener has just been turned on!', data: handler});
 
@@ -398,17 +378,18 @@ class SlackRelay extends Relay {
   /***** END   get team users and channels *****/
 
   /**
+   * @private
    * call the rtm.on function on
    */
   _intializeSlackListener() {
     let _rtm = rtm.get(this);
-    let _me = me.get(this);
-    let _channels = this.channels;
-    let _users = this.users;
-    let _event_emitter = event_emitter.get(this);
 
     let self = this;
     _rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
+      let _me = me.get(self);
+      let _event_emitter = event_emitter.get(self);
+      let _users = self.users;
+      let _channels = self.channels;
 
       let bot_id = _me.userid;
       let found_channel = _channels.find(channel_param => channel_param.channelid === message.channel) || {},
@@ -419,12 +400,25 @@ class SlackRelay extends Relay {
       let clean_message, parsed_message, user, channel, event;
       event = 'direct_message';
 
-      if (!direct_message) {
+      if (direct_message) {
+        parsed_message = message.text;
+        user = found_user.name;
+        // @DONE make channel is undefined => it is not set to anything from it creation to this point
+      } else {
         clean_message = self.message_separation(message.text || '', bot_id);
-        event = clean_message.event; // @TODO respond to messages depending on the event type, right now the channel_type is being ignored
+        parsed_message = clean_message.message;
+        event = clean_message.event; // @DONE respond to messages depending on the event type, right now the channel_type is being ignored
+        // lookup channel name
+        channel = found_channel.name;
+        // when posting message to chanel it is a good idea to tell the receiver about who posted
+        user = found_user.name;
       }
 
-      _event_emitter.emit(event, [self, parsed_message, user, channel]); // @TODO
+      // @DONE run the handler function
+      // @DONE right now message object is a string
+      console.log('event type: ', event);
+
+      _event_emitter.emit(event, self, parsed_message, user, channel);
 
     });
   }
