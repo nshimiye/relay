@@ -1,8 +1,15 @@
 language: node_js
 node_js:
-  - "4.4.2"
-  - "5"
-
+- 4.4.2
+- '5'
 script:
-  - "npm run jshint"
-  - "npm run coverage"
+- npm run jshint
+- npm run coverage
+deploy:
+  provider: npm
+  email: mn2587@columbia.edu
+  api_key:
+    secure: DCMvJ3q+/SANNid3nk+Dnu7WMf4W8k3VRRhTHKa6PO5hvi/nvgZnfjswTDCcI+ZSB8b1xIPTphlwmQY8U0xTriEZyToyVA4IIFEZYufbXix0v7cifjBgefcIIDPJuAEMmxWVcXwshIZd/Wb1C4oRDAVXOV7ZnAeeeZGmNyb3C1MeCWhQkPg6T02QISmB+J2T+r3LnkKJlaGwKK131hBQB/rUpSvFoTRFN1low5DdcZcmfhiwpD9RwHONdjHV3FXKClurxxR0MMsVWyuRdwJVjWLLWpn3IupoFhFh9cXqWY7Qot8zQhWVLIUuQbHGqFbU4Aco0QclnABARXVVMNbBkj8DFzUE8OAzr0k6GmAnW7o5MoIVFPHaEOaypJdvFJMMwz3sVrZHrenKl/2o/5GYZ/qtlzs8ZYR9x0GETMoVuJ0HDNSqilwUI70IfoWsHqXzzFa+OiUmVRrQBAEUzSeiHVkjAEmftPaaVl+G0ElK35kCDk1CYpt5XCVTI2VepX9qvx7Pk9PUfMpgNSiGiTpwzR0KAECgHMd95hr0TVbb4ebyeIruISn7QWJiCkxHzXcoTzzcsu/H/lx8VNpFzHVgcMj1mEuLHC3xhXRtoetkv7nLpEb86lGetz7JO97zlBcPpCMs9ZuD4Vj0yMsPdmuoqktxyZFyoifJOzLmYSJOkhM=
+  on:
+    tags: true
+    repo: nshimiye/relay

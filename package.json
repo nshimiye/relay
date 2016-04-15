@@ -1,6 +1,6 @@
 {
   "name": "bot-relay",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "send bot messages to real users, real name should bot-relay",
   "main": "index.js",
   "scripts": {
